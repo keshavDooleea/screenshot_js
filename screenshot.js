@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 
 const LINK = "https://www.bestbuy.ca/en-ca/search?search=dog+toys";
 const FILE_NAME = "tesssst";
-const PATH = `${process.env.PATH}/${FILE_NAME}.png`;
+const PATH = `${process.env.SCREENSHOT_PATH}/${FILE_NAME}.png`;
 
 const imagesHaveLoaded = () => {
   return Array.from(document.images).every((i) => i.complete);
