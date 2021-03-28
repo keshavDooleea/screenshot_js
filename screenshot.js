@@ -1,14 +1,28 @@
 require("dotenv/config");
 const puppeteer = require("puppeteer");
 
-const LINK = "https://www.bestbuy.ca/en-ca/search?search=dog+toys";
-const FILE_NAME = "tesssst";
+// node screenshot.js url filename delay(in sec)
+
+const URL = process.argv[2];
+const FILE_NAME = process.argv[3];
 const PATH = `${process.env.SCREENSHOT_PATH}/${FILE_NAME}.png`;
+
+// no args entered
+if (!URL || !FILE_NAME) {
+  let missedArgs = !URL ? "Url " : "";
+  missedArgs += !FILE_NAME ? "File_Name" : "";
+  console.log(`Missing arguments: ${missedArgs} (Delay)`);
+  process.exit(1);
+}
+
+// timeout
+const DELAY = process.argv[4] ? process.argv[4] * 1000 : 10000;
 
 const imagesHaveLoaded = () => {
   return Array.from(document.images).every((i) => i.complete);
 };
 
+// delay used to wait for images to load
 async function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -22,16 +36,16 @@ async function timeout(ms) {
   const page = await browser.newPage();
 
   console.log("1/5 Visiting URL");
-  await page.goto(LINK, {
+  await page.goto(URL, {
     waitUntil: "domcontentloaded",
     timeout: 0,
   });
 
-  console.log("2/5 Loading images");
+  console.log(`2/5 Loading images for ${DELAY / 1000} seconds`);
   await page.evaluate(() => {
     window.scrollBy(0, window.innerHeight);
   });
-  await timeout(10000);
+  await timeout(DELAY);
   await page.waitForFunction(imagesHaveLoaded, { timeout: 0 });
 
   // Get scroll width and height of the rendered page and set viewport
@@ -45,4 +59,5 @@ async function timeout(ms) {
 
   console.log("5/5 Done");
   await browser.close();
+  process.exit(1);
 })();
