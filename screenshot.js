@@ -18,18 +18,19 @@ if (!URL || !FILE_NAME) {
 // timeout
 const DELAY = process.argv[4] ? process.argv[4] * 1000 : 10000;
 
+// check if all images on website have loaded
 const imagesHaveLoaded = () => {
   return Array.from(document.images).every((i) => i.complete);
 };
 
 // delay used to wait for images to load
-async function timeout(ms) {
+const timeout = async (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
+};
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: true, // Set to false while development
+    headless: true,
     defaultViewport: null,
   });
 
@@ -48,7 +49,7 @@ async function timeout(ms) {
   await timeout(DELAY);
   await page.waitForFunction(imagesHaveLoaded, { timeout: 0 });
 
-  // Get scroll width and height of the rendered page and set viewport
+  // get scroll width and height of the rendered page and set viewport
   console.log("3/5 Getting View port");
   const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
   const bodyHeight = await page.evaluate(() => document.body.scrollHeight);

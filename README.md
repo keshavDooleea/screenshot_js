@@ -7,7 +7,7 @@ node screenshot.js URL FILE_NAME DELAY
 ```
 
 - URL: complete url of page,
-- FILE_NAME: Name of file ,
+- FILE_NAME: Name of file to be saved,
 - DELAY (in seconds): Optional. Default delay is 10 seconds. To wait furthermore until page loads before taking screenshot.
 
 Note: Must change default screenshot Path location.
