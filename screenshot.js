@@ -1,5 +1,6 @@
 require("dotenv/config");
 const puppeteer = require("puppeteer");
+const cmd = require("node-cmd");
 
 /**
  * node screenshot.js URL FILENAME delay
@@ -8,7 +9,15 @@ const puppeteer = require("puppeteer");
 
 const URL = process.argv[2];
 const FILE_NAME = process.argv[3];
-const PATH = `${process.env.SCREENSHOT_PATH}/${FILE_NAME}.png`;
+const SCREENSHOT_FOLDER_PATH = process.env.SCREENSHOT_PATH;
+const PATH = `${SCREENSHOT_FOLDER_PATH}/${FILE_NAME}.png`;
+
+// open screenshots folder
+if (process.argv.length === 3 && URL == "o") {
+  cmd.runSync(`start ${SCREENSHOT_FOLDER_PATH}`);
+  console.log("Opened screenshot folder");
+  process.exit(1);
+}
 
 // no args entered
 if (!URL || !FILE_NAME) {
