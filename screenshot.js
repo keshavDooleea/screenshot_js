@@ -3,8 +3,8 @@ const puppeteer = require("puppeteer");
 const cmd = require("node-cmd");
 
 /**
- * node screenshot.js URL FILENAME delay -o -l
- * delay is in seconds and is optional
+ * node screenshot.js URL FILENAME -delay -o -l
+ * -delay is in seconds. default is 10s. Ex: -4 to wait for 4 seconds
  * -o to open the folder after taking screenshot
  * -l to lauch browser during process
  */
@@ -31,18 +31,30 @@ if (process.argv.length === 3 && URL === OPEN_SCREENSHOT_FOLDER_COMMAND) {
   openScreenshotFolder();
 }
 
-// no args entered
-if (!URL || !FILE_NAME) {
-  let missedArgs = !URL ? "Url " : "";
-  missedArgs += !FILE_NAME ? "FileName" : "";
-  console.log(`Missing arguments: ${missedArgs} (Delay) (${OPEN_SCREENSHOT_FOLDER_COMMAND}) (${LAUNCH_BROWSER_COMMAND})`);
+// no args or mismatched args entered
+const invalidUrl = !URL || URL.startsWith("-");
+const invalidFileName = !FILE_NAME || FILE_NAME.startsWith("-");
+
+if (invalidUrl || invalidFileName) {
+  let missedArgs = invalidUrl ? "Url " : "";
+  missedArgs += invalidFileName ? "FileName" : "";
+  console.log(`Missing arguments: ${missedArgs} (-delay) (${OPEN_SCREENSHOT_FOLDER_COMMAND}) (${LAUNCH_BROWSER_COMMAND})`);
   process.exit(1);
 }
 
 // delay used to wait for images to load
 // if there's a delay arg, convert to seconds! else, delay = default
-const containsDelayArg = process.argv[4] !== OPEN_SCREENSHOT_FOLDER_COMMAND && process.argv[4] !== LAUNCH_BROWSER_COMMAND;
-const DELAY = process.argv[4] && containsDelayArg ? process.argv[4] * 1000 : DEFAULT_DELAY;
+let delay = DEFAULT_DELAY;
+process.argv.forEach((arg) => {
+  if (arg.startsWith("-") && arg !== OPEN_SCREENSHOT_FOLDER_COMMAND && arg !== LAUNCH_BROWSER_COMMAND) {
+    arg = Number(arg.slice(1, arg.length)); // string to number
+
+    // if not a letter => is a number
+    if (!Number.isNaN(arg)) {
+      delay = arg * 1000;
+    }
+  }
+});
 
 // check if all images on website have loaded
 const imagesHaveLoaded = () => {
@@ -75,11 +87,11 @@ const timeout = async (ms) => {
   }
 
   // wait for images to render
-  console.log(`2/5 Waiting ${DELAY / 1000} seconds to load images`);
+  console.log(`2/5 Waiting ${delay / 1000} seconds to load images`);
   await page.evaluate(() => {
     window.scrollBy(0, window.innerHeight);
   });
-  await timeout(DELAY);
+  await timeout(delay);
   await page.waitForFunction(imagesHaveLoaded, { timeout: 0 });
 
   // get scroll width and height of the rendered page and set viewport
