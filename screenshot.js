@@ -3,17 +3,21 @@ const puppeteer = require("puppeteer");
 const cmd = require("node-cmd");
 
 /**
- * node screenshot.js URL FILENAME delay -o
+ * node screenshot.js URL FILENAME delay -o -l
  * delay is in seconds and is optional
  * -o to open the folder after taking screenshot
+ * -l to lauch browser during process
  */
 const OPEN_SCREENSHOT_FOLDER_COMMAND = "-o";
+const LAUNCH_BROWSER_COMMAND = "-l";
 const DEFAULT_DELAY = 10000; // 10 seconds
 
 const URL = process.argv[2];
 const FILE_NAME = process.argv[3];
 const SCREENSHOT_FOLDER_PATH = process.env.SCREENSHOT_PATH;
 const PATH = `${SCREENSHOT_FOLDER_PATH}/${FILE_NAME}.png`;
+
+const shouldLaunchBrowser = !process.argv.includes(LAUNCH_BROWSER_COMMAND);
 
 // launch file explorer by opening screenshots folder
 const openScreenshotFolder = () => {
@@ -31,13 +35,14 @@ if (process.argv.length === 3 && URL === OPEN_SCREENSHOT_FOLDER_COMMAND) {
 if (!URL || !FILE_NAME) {
   let missedArgs = !URL ? "Url " : "";
   missedArgs += !FILE_NAME ? "FileName" : "";
-  console.log(`Missing arguments: ${missedArgs} (Delay) (o)`);
+  console.log(`Missing arguments: ${missedArgs} (Delay) (${OPEN_SCREENSHOT_FOLDER_COMMAND}) (${LAUNCH_BROWSER_COMMAND})`);
   process.exit(1);
 }
 
 // delay used to wait for images to load
 // if there's a delay arg, convert to seconds! else, delay = default
-const DELAY = process.argv[4] && process.argv[4] !== OPEN_SCREENSHOT_FOLDER_COMMAND ? process.argv[4] * 1000 : DEFAULT_DELAY;
+const containsDelayArg = process.argv[4] !== OPEN_SCREENSHOT_FOLDER_COMMAND && process.argv[4] !== LAUNCH_BROWSER_COMMAND;
+const DELAY = process.argv[4] && containsDelayArg ? process.argv[4] * 1000 : DEFAULT_DELAY;
 
 // check if all images on website have loaded
 const imagesHaveLoaded = () => {
@@ -51,7 +56,7 @@ const timeout = async (ms) => {
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: shouldLaunchBrowser,
     defaultViewport: null,
   });
 
