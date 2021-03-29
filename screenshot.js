@@ -13,7 +13,7 @@ const SCREENSHOT_FOLDER_PATH = process.env.SCREENSHOT_PATH;
 const PATH = `${SCREENSHOT_FOLDER_PATH}/${FILE_NAME}.png`;
 
 // open screenshots folder
-if (process.argv.length === 3 && URL == "o") {
+if (process.argv.length === 3 && URL === "o") {
   cmd.runSync(`start ${SCREENSHOT_FOLDER_PATH}`);
   console.log("Opened screenshot folder");
   process.exit(1);
