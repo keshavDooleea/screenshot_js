@@ -8,7 +8,7 @@ node screenshot.js URL FILE_NAME delay -o -l
 
 ### Example of command:
 
-Wait for 7 seconds before taking screenshot (to wait for page to render)
+Wait for 7 seconds before taking screenshot (to wait for page to render)\
 Save image as "google" & open screenshot folder afterwards
 
 ```sh
