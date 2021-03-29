@@ -1,7 +1,10 @@
 require("dotenv/config");
 const puppeteer = require("puppeteer");
 
-// node screenshot.js url filename delay(in sec)
+/**
+ * node screenshot.js URL FILENAME delay
+ * delay is in seconds and is optional
+ */
 
 const URL = process.argv[2];
 const FILE_NAME = process.argv[3];
@@ -10,12 +13,12 @@ const PATH = `${process.env.SCREENSHOT_PATH}/${FILE_NAME}.png`;
 // no args entered
 if (!URL || !FILE_NAME) {
   let missedArgs = !URL ? "Url " : "";
-  missedArgs += !FILE_NAME ? "File_Name" : "";
+  missedArgs += !FILE_NAME ? "FileName" : "";
   console.log(`Missing arguments: ${missedArgs} (Delay)`);
   process.exit(1);
 }
 
-// timeout
+// delay used to wait for images to load
 const DELAY = process.argv[4] ? process.argv[4] * 1000 : 10000;
 
 // check if all images on website have loaded
@@ -23,7 +26,7 @@ const imagesHaveLoaded = () => {
   return Array.from(document.images).every((i) => i.complete);
 };
 
-// delay used to wait for images to load
+// delay/timout function
 const timeout = async (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -36,13 +39,20 @@ const timeout = async (ms) => {
 
   const page = await browser.newPage();
 
+  // go to website if url is valid
   console.log("1/5 Visiting URL");
-  await page.goto(URL, {
-    waitUntil: "domcontentloaded",
-    timeout: 0,
-  });
+  try {
+    await page.goto(URL, {
+      waitUntil: "domcontentloaded",
+      timeout: 0,
+    });
+  } catch (err) {
+    console.log("Invalid URL");
+    process.exit(1);
+  }
 
-  console.log(`2/5 Loading images for ${DELAY / 1000} seconds`);
+  // wait for images to render
+  console.log(`2/5 Waiting ${DELAY / 1000} seconds to load images`);
   await page.evaluate(() => {
     window.scrollBy(0, window.innerHeight);
   });
@@ -50,7 +60,7 @@ const timeout = async (ms) => {
   await page.waitForFunction(imagesHaveLoaded, { timeout: 0 });
 
   // get scroll width and height of the rendered page and set viewport
-  console.log("3/5 Getting View port");
+  console.log("3/5 Setting View port");
   const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
   const bodyHeight = await page.evaluate(() => document.body.scrollHeight);
   await page.setViewport({ width: bodyWidth, height: bodyHeight });
